@@ -99,6 +99,7 @@ class raizes:
             if abs(self.x - xrold) < self.Emax or cont >= self.maxit:
                 self.erro = abs(self.x - xrold)
                 break
+            xrold = self.x
             self.x = sigma(self.x)
 
 
