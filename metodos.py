@@ -69,7 +69,7 @@ class raizes:
         cont = 0
 
         while True:
-            self.x = ((a*self.f(b)) - (b*self.f(a)))/(self.f(b) - self.f(a))
+            self.x = ((a * self.f(b)) - (b * self.f(a))) / (self.f(b) - self.f(a))
             cont += 1
 
             if self.f(a) * self.f(self.x) < 0:
@@ -101,7 +101,6 @@ class raizes:
                 break
             xrold = self.x
             self.x = sigma(self.x)
-
 
     def secante(self, x0, x1):
 
@@ -160,7 +159,6 @@ class raizes:
         self.x = self.x[-1]
 
 
-
 class interpol:
 
     def __init__(self, x, y, po, pf):
@@ -171,6 +169,7 @@ class interpol:
         :param po: O valor inicial de X onde se pretende calcular a aproximação.
         :param pf: O valor final de X onde se pretende calcular a aproximação.
         :param tipo: O tipo de spline a ser utilizado, caso não especificado será spline cubico.
+        :param grau: O grau do polinomio MMQ gerado, caso não especificado será grau 1.
         :param resultado: Dicionario com os valores entre os ponto pedidos e suas respectivas aproximações de F(x).
         """
         self.x = x
@@ -238,6 +237,28 @@ class interpol:
             self.resultado = {"X": pontos,
                               "Y": res}
 
+    def MMQ(self, grau=1):
+
+        def mmq(x, th, grau):       #Devolve a soma dos termos do polinomio
+            aux = grau
+            soma = 0
+            for c in range(0, grau):
+                soma += th[c] * (x ** aux)
+                aux -= 1
+            soma += th[-1]
+            return soma
+
+        M_x = np.ones(len(self.x) * (grau + 1)).reshape(len(self.x), grau + 1)  # Cria a matrix a ser usada
+        aux = grau
+        for c in range(0, grau):
+            for i in range(0, len(self.x)):
+                M_x[i][c] = self.x[i] ** aux
+            aux -= 1
+        th = np.linalg.inv(M_x.transpose().dot(M_x)).dot(M_x.transpose().dot(self.y))       #Aplica a formula do MMQ
+        pontos = np.linspace(self.po, self.pf, 100)  # Intervalo a ser calculado
+        res = np.array([mmq(i, th, grau) for i in pontos])
+        self.resultado = {"X": pontos,
+                          "Y": res}
 
 
 class Sistemas_Lineares():
