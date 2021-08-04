@@ -289,3 +289,73 @@ class Sistemas_Lineares():
                         s -= self.A[i, j] * self.resultado[j]  # Subtraimos tds A*x exceto onde no x[i]
                 s /= self.A[i, i]  # Dividimos pelo A em questão
                 self.resultado[i] = s  # Atualizamos vetor resultado
+
+class EDO():
+    def __init__(self, f_linha, xi, fi, h=0.1):
+        """
+        Encontra a aproximação da EDO pelo Metodo de Heun.
+        :param f_linha: Derivada isolada da função.
+        :param xi: Posição da condição conhecida.
+        :param fi: Condição conhecida.
+        :param h: Valor do passo, caso não especificado será 0.1.
+        :param x_anterior: Variavel auxiliar para aplicação do metodo.
+        :param y_anterior: Valor passado da aproximação da solução da EDO no ponto t.
+        :param y_novo: Valor da aproximação da solução da EDO no ponto t.
+        :param t: Posição do valor no qual deseja ser encontrado.
+        """
+        self.f_linha = f_linha
+        self.xi = xi
+        self.fi = fi
+        self.h = h
+        self.x_anterior = None
+        self.y_anterior = None
+        self.y_novo = None
+
+    def Euler(self, t):
+        self.t = t
+        if self.xi == self.t:  # Retorna valor conhecido caso busquemos sua posição.
+            self.y_novo = self.fi
+
+        n = int((self.t - self.xi) / self.h)
+        self.y_anterior = self.fi
+        self.x_anterior = self.xi
+        for p in range(0, n):  # Aplica a formula n vezes.
+            self.y_novo = self.y_anterior + self.h * self.f_linha(self.x_anterior, self.y_anterior)
+            self.x_anterior += self.h   # Atualiza o valor de x.
+            self.y_anterior = self.y_novo   # Atualiza o valor de y.
+
+    def Heun(self, t):
+        self.t = t
+        if self.xi == self.t:  # Retorna valor conhecido caso busquemos sua posição.
+            self.y_novo = self.fi
+
+        n = int((self.t - self.xi) / self.h)
+        for p in range(0, n):  # Aplica a formula n vezes.
+            if p == 0:
+                self.y_anterior = self.fi
+                self.x_anterior = self.xi
+            self.y_novo = self.y_anterior + (self.h / 2) * (self.f_linha(self.x_anterior, self.y_anterior) +
+                                            self. f_linha(self.x_anterior + self.h,
+                                                          self.y_anterior + self.h * self.f_linha(self.x_anterior,
+                                                                                                  self.y_anterior)))
+            self.x_anterior += self.h  # Atualiza o valor de x.
+            self.y_anterior = self.y_novo  # Atualiza o valor de y.
+
+
+    def Runge_Kutta_4(self, t):
+        self.t = t
+        if self.xi == self.t:  # Retorna valor conhecido caso busquemos sua posição.
+            self.y_novo = self.fi
+
+        n = int((self.t - self.xi) / self.h)
+        for p in range(0, n):  # Aplica a formula n vezes.
+            if p == 0:
+                self.y_anterior = self.fi
+                self.x_anterior = self.xi
+            k1 = self.f_linha(self.x_anterior, self.y_anterior)
+            k2 = self.f_linha(self.x_anterior + 0.5*self.h, self.y_anterior + k1*0.5*self.h)
+            k3 = self.f_linha(self.x_anterior + 0.5*self.h, self.y_anterior + k2*0.5*self.h)
+            k4 = self.f_linha(self.x_anterior + self.h, self.y_anterior + k3*self.h)
+            self.y_novo = self.y_anterior + (1/6)*(k1 + 2*k2 + 2*k3 + k4)*self.h
+            self.x_anterior += self.h  # Atualiza o valor de x.
+            self.y_anterior = self.y_novo  # Atualiza o valor de y.
