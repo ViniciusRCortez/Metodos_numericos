@@ -290,6 +290,7 @@ class Sistemas_Lineares():
                 s /= self.A[i, i]  # Dividimos pelo A em questão
                 self.resultado[i] = s  # Atualizamos vetor resultado
 
+
 class EDO():
     def __init__(self, f_linha, xi, fi, h=0.1):
         """
