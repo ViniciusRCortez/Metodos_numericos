@@ -239,7 +239,7 @@ class interpol:
 
     def MMQ(self, grau=1):
 
-        def mmq(x, th, grau):       #Devolve a soma dos termos do polinomio
+        def mmq(x, th, grau):  # Devolve a soma dos termos do polinomio
             aux = grau
             soma = 0
             for c in range(0, grau):
@@ -254,7 +254,7 @@ class interpol:
             for i in range(0, len(self.x)):
                 M_x[i][c] = self.x[i] ** aux
             aux -= 1
-        th = np.linalg.inv(M_x.transpose().dot(M_x)).dot(M_x.transpose().dot(self.y))       #Aplica a formula do MMQ
+        th = np.linalg.inv(M_x.transpose().dot(M_x)).dot(M_x.transpose().dot(self.y))  # Aplica a formula do MMQ
         pontos = np.linspace(self.po, self.pf, 100)  # Intervalo a ser calculado
         res = np.array([mmq(i, th, grau) for i in pontos])
         self.resultado = {"X": pontos,
@@ -294,7 +294,7 @@ class Sistemas_Lineares():
 class EDO():
     def __init__(self, f_linha, xi, fi, h=0.1):
         """
-        Encontra a aproximação da EDO pelo Metodo de Heun.
+        Encontra a aproximação da EDO por um metodo numerico.
         :param f_linha: Derivada isolada da função.
         :param xi: Posição da condição conhecida.
         :param fi: Condição conhecida.
@@ -322,8 +322,8 @@ class EDO():
         self.x_anterior = self.xi
         for p in range(0, n):  # Aplica a formula n vezes.
             self.y_novo = self.y_anterior + self.h * self.f_linha(self.x_anterior, self.y_anterior)
-            self.x_anterior += self.h   # Atualiza o valor de x.
-            self.y_anterior = self.y_novo   # Atualiza o valor de y.
+            self.x_anterior += self.h  # Atualiza o valor de x.
+            self.y_anterior = self.y_novo  # Atualiza o valor de y.
 
     def Heun(self, t):
         self.t = t
@@ -336,12 +336,12 @@ class EDO():
                 self.y_anterior = self.fi
                 self.x_anterior = self.xi
             self.y_novo = self.y_anterior + (self.h / 2) * (self.f_linha(self.x_anterior, self.y_anterior) +
-                                            self. f_linha(self.x_anterior + self.h,
-                                                          self.y_anterior + self.h * self.f_linha(self.x_anterior,
-                                                                                                  self.y_anterior)))
+                                                            self.f_linha(self.x_anterior + self.h,
+                                                                         self.y_anterior + self.h * self.f_linha(
+                                                                             self.x_anterior,
+                                                                             self.y_anterior)))
             self.x_anterior += self.h  # Atualiza o valor de x.
             self.y_anterior = self.y_novo  # Atualiza o valor de y.
-
 
     def Runge_Kutta_4(self, t):
         self.t = t
@@ -354,9 +354,47 @@ class EDO():
                 self.y_anterior = self.fi
                 self.x_anterior = self.xi
             k1 = self.f_linha(self.x_anterior, self.y_anterior)
-            k2 = self.f_linha(self.x_anterior + 0.5*self.h, self.y_anterior + k1*0.5*self.h)
-            k3 = self.f_linha(self.x_anterior + 0.5*self.h, self.y_anterior + k2*0.5*self.h)
-            k4 = self.f_linha(self.x_anterior + self.h, self.y_anterior + k3*self.h)
-            self.y_novo = self.y_anterior + (1/6)*(k1 + 2*k2 + 2*k3 + k4)*self.h
+            k2 = self.f_linha(self.x_anterior + 0.5 * self.h, self.y_anterior + k1 * 0.5 * self.h)
+            k3 = self.f_linha(self.x_anterior + 0.5 * self.h, self.y_anterior + k2 * 0.5 * self.h)
+            k4 = self.f_linha(self.x_anterior + self.h, self.y_anterior + k3 * self.h)
+            self.y_novo = self.y_anterior + (1 / 6) * (k1 + 2 * k2 + 2 * k3 + k4) * self.h
             self.x_anterior += self.h  # Atualiza o valor de x.
             self.y_anterior = self.y_novo  # Atualiza o valor de y.
+
+
+class Integral():
+    def __init__(self, f, a, b, n=1):
+        """
+        Encontra a aproximação da integral por um metodo numerico.
+        :param f: Função a ser integrada.
+        :param a: Limite de integração inferior.
+        :param b: Limite de integração superior.
+        :param n: Quantidade de subdivições do metodo, será 1 caso não especificado.
+        :param resultado: Valor da aproximação.
+        """
+        self.f = f
+        self.a = a
+        self.b = b
+        self.n = n
+        self.resultado = None
+
+    def Trapezio(self):
+        h = (self.b - self.a) / self.n
+        x = np.arange(self.a, self.b + h, h)
+        y = np.array([self.f(i) for i in x])
+        soma = y.sum()
+        self.resultado = (h / 2) * ((2 * soma) - y[0] - y[-1])
+
+    def Simpson(self):
+        h = (self.b - self.a) / (2 * self.n)
+        x = np.arange(self.a, self.b + h, h)
+        y = np.array([self.f(i) for i in x])
+        for i in range(len(y)-1):
+            if i == 0:
+                par = 0
+                impar = 0
+            elif i % 2 == 0:
+                par += y[i]
+            else:
+                impar += y[i]
+        self.resultado = (h / 3) * (y[0] + y[-1] + 2 * par + 4 * impar)
